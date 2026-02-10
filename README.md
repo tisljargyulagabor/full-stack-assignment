@@ -75,7 +75,7 @@ Ez elindítja:
 Migrációk és seed adatok futtatása:
 
 ```bash
-docker exec -it backend php artisan migrate --seed
+docker exec -it laravel_app php artisan migrate --seed
 ```
 
 ---

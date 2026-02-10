@@ -69,7 +69,7 @@ const handleLogout = async () => {
             <span class="icon">💬</span> AI Assistant
           </router-link>
 
-          <router-link to="/profile" class="nav-item">
+          <router-link to="/admin/profile" class="nav-item">
             <span class="icon">👤</span> My Profile
           </router-link>
 

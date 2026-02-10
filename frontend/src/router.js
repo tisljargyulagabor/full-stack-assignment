@@ -21,7 +21,8 @@ const routes = [
             { path: 'dashboard', component: AdminDashboard },
             { path: 'chat', component: AdminChat },
             { path: 'users', component: AdminUserList },
-            { path: 'eventList', component: EventList }
+            { path: 'eventList', component: EventList },
+            { path: 'profile', component: Profile }
         ]
     },
     {
