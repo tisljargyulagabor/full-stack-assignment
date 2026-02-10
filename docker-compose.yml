@@ -1,0 +1,101 @@
+#version: "3.9"
+
+services:
+  # --- PROXY (AZ EGYETLEN KAPU A KÜLVILÁG FELÉ) ---
+  caddy:
+    image: caddy:latest
+    container_name: caddy_proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - frontend_net
+    depends_on:
+      - frontend
+      - backend
+
+  # --- ADATBÁZIS (IZOLÁLT) ---
+  postgres:
+    image: postgres:16
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-laravel}
+      POSTGRES_USER: ${DB_USERNAME:-laravel}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - "5433:5432" # A ports részt ki kell venni
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend_net
+
+  # --- BACKEND (A HÍD A HÁLÓZATOK KÖZÖTT) ---
+  backend:
+    build:
+      context: ./backend
+    container_name: laravel_app
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/var/www
+    expose:
+      - "8000"
+    networks:
+      - frontend_net  # Hogy a Caddy elérje
+      - backend_net   # Hogy ő elérje a Postgres-t, Redis-t
+    depends_on:
+      - postgres
+      - redis
+
+  # --- FRONTEND (IZOLÁLT A DB-TŐL) ---
+  frontend:
+    build: ./frontend
+    container_name: vue_app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    expose:
+      - "5173"
+    command: npm run dev -- --host 0.0.0.0
+    networks:
+      - frontend_net
+    depends_on:
+      - backend
+
+  # --- CACHE & SESSION (IZOLÁLT) ---
+  redis:
+    image: redis:alpine
+    container_name: redis_cache
+    restart: always
+    # PORTS TÖRÖLVE
+    networks:
+      - backend_net
+
+  # --- MAIL TESTER (OPCIONÁLIS KÜLSŐ PORT) ---
+  mailpit:
+    image: axllent/mailpit
+    container_name: mailpit_server
+    restart: always
+    ports:
+      - "8025:8025" # A webes felületet el akarod érni a gépedről
+    # A 1025-ös SMTP portot nem kell kiengedni, a backend látja belül
+    networks:
+      - backend_net
+
+networks:
+  frontend_net:
+    driver: bridge
+  backend_net:
+    driver: bridge
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:
