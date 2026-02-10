@@ -196,7 +196,7 @@ Route::middleware('auth:sanctum')->group(function () {
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => [
-                'required',
+                'nullable',
                 'string',
                 Password::min(12)
                     ->letters()

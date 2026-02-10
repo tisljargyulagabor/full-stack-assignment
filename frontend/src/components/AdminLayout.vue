@@ -58,15 +58,15 @@ const handleLogout = async () => {
           </router-link>
 
           <router-link to="/admin/eventList" class="nav-item">
-            <span class="icon">📅</span> Events
+            <span class="icon">📅</span> Event Management
           </router-link>
 
           <router-link to="/admin/users" class="nav-item">
-            <span class="icon">👥</span> Users
+            <span class="icon">👥</span> User Management
           </router-link>
 
           <router-link to="/admin/chat" class="nav-item">
-            <span class="icon">💬</span> AI Assistant
+            <span class="icon">💬</span> Help Desk
           </router-link>
 
           <router-link to="/admin/profile" class="nav-item">
